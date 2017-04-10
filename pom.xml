@@ -14,6 +14,8 @@
         <module>microapp-ribbon-consumer</module>
         <module>microapp-feign-consumer</module>
         <module>cloud-config</module>
+        <module>microapp2</module>
+        <module>zuulproxy</module>
     </modules>
 
     <properties>
