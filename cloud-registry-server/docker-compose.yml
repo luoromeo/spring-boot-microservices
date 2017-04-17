@@ -1,0 +1,9 @@
+version: '1'
+
+services:
+  cloud-registry-server:
+    build: ./
+    hostname: registry
+    name: cloud-registry-server
+    ports:
+      - "8761:8761"

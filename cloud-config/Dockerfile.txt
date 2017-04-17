@@ -1,0 +1,6 @@
+FROM java
+RUN mkdir -p /home/app
+WORKDIR /home/app
+ADD cloud-config-1.5.2.RELEASE.jar app.jar
+EXPOSE  9380
+CMD ["java","-jar","app.jar"]

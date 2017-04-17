@@ -1,0 +1,17 @@
+version: '1'
+
+services:
+  cloud-registry-server:
+    build: cloud-registry-server/
+    hostname: registry
+    name: cloud-registry-server
+    ports:
+      - "8761:8761"
+  cloud-config:
+    build: cloud-config/
+    hostname: config
+    name: cloud-config
+    links:
+      - registry
+    ports:
+      - "9380:9380"

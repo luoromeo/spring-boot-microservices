@@ -1,0 +1,6 @@
+FROM java
+RUN mkdir -p /home/app
+WORKDIR /home/app
+ADD cloud-registry-server-1.0-SNAPSHOT.jar app.jar
+EXPOSE  8761
+CMD ["java","-jar","app.jar"]
