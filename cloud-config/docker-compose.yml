@@ -1,17 +1,44 @@
-version: '1'
+#version: '1'
+#
+#services:
+#  cloud-registry-server:
+#    build: cloud-registry-server/
+#    hostname: registry
+#    name: cloud-registry-server
+#    ports:
+#      - "8761:8761"
+#  cloud-config:
+#    build: cloud-config/
+#    hostname: config
+#    name: cloud-config
+#    links:
+#      - registry
+#    ports:
+#      - "9380:9380"
 
 services:
   cloud-registry-server:
-    build: cloud-registry-server/
+    image: jamesdbloom/docker-java8-maven
     hostname: registry
-    name: cloud-registry-server
     ports:
       - "8761:8761"
+    volumes:
+      - /Users/luoromeo/Desktop/projects/spring-boot-microservices/cloud-registry-server:/home/app
+      - /Users/luoromeo/.m2:/root/.m2
+    working_dir: /home/app
+    command: mvn clean package -Dmaven.test.skip
+    command: java -jar target/cloud-registry-server-1.0.0.jar
+
   cloud-config:
-    build: cloud-config/
-    hostname: config
-    name: cloud-config
+    image: jamesdbloom/docker-java8-maven
     links:
       - registry
     ports:
       - "9380:9380"
+    volumes:
+      - /Users/luoromeo/Desktop/projects/spring-boot-microservices/cloud-config:/home/app
+      - /Users/luoromeo/.m2:/root/.m2
+    working_dir: /home/app
+    command: mvn clean package -Dmaven.test.skip
+    command: java -jar target/cloud-config-1.0.0.jar
+
