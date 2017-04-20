@@ -18,9 +18,11 @@
 version: '2'
 services:
   #服务发现
-  cloud-registry-server:
+  eureka:
     image: luoromeo/java8_131-maven3_5
-    hostname: registry
+    hostname: eureka
+    networks:
+     - eureka-net
     ports:
       - "8761:8761"
     volumes:
@@ -30,27 +32,26 @@ services:
     command: mvn clean package -Dmaven.test.skip
     command: java -jar target/cloud-registry-server-1.0.0.jar
 
+
   #配置
-  cloud-config:
-    image: luoromeo/java8_131-maven3_5
-    hostname: config
-    links:
-      - cloud-registry-server:registry
-    ports:
-      - "9380:9380"
-    volumes:
-      - /Users/luoromeo/Desktop/projects/spring-boot-microservices/cloud-config:/home/app
-      - /Users/luoromeo/.m2:/root/.m2
-    working_dir: /home/app
-    command: mvn clean package -Dmaven.test.skip
-    command: java -jar target/cloud-config-1.0.0.jar
+#  cloud-config:
+#    image: luoromeo/java8_131-maven3_5
+#    hostname: config
+#    links:
+#      - cloud-registry-server:registry
+#    ports:
+#      - "9380:9380"
+#    volumes:
+#      - /Users/luoromeo/Desktop/projects/spring-boot-microservices/cloud-config:/home/app
+#      - /Users/luoromeo/.m2:/root/.m2
+#    working_dir: /home/app
+#    command: mvn clean package -Dmaven.test.skip
+#    command: java -jar target/cloud-config-1.0.0.jar
 
     #服务提供者
   microapp1:
     image: luoromeo/java8_131-maven3_5
-    links:
-      - cloud-config:config
-      - cloud-registry-server:registry
+    hostname: demo
     ports:
       - "8080:8080"
     volumes:
@@ -59,21 +60,27 @@ services:
     working_dir: /home/app
     command: mvn clean package -Dmaven.test.skip
     command: java -jar target/microapp1-1.0.0.jar
+    networks:
+     - eureka-net
 
     #服务消费者
-  microapp-ribbon-consumer:
-    image: luoromeo/java8_131-maven3_5
-    links:
-      - cloud-config:config
-      - cloud-registry-server:registry
-    ports:
-      - "8083:8083"
-    volumes:
-      - /Users/luoromeo/Desktop/projects/spring-boot-microservices/microapp-ribbon-consumer:/home/app
-      - /Users/luoromeo/.m2:/root/.m2
-    working_dir: /home/app
-    command: mvn clean package -Dmaven.test.skip
-    command: java -jar target/microapp-ribbon-consumer-1.0.0.jar
+#  microapp-ribbon-consumer:
+#    image: luoromeo/java8_131-maven3_5
+#    ports:
+#      - "8083:8083"
+#    volumes:
+#      - /Users/luoromeo/Desktop/projects/spring-boot-microservices/microapp-ribbon-consumer:/home/app
+#      - /Users/luoromeo/.m2:/root/.m2
+#    working_dir: /home/app
+#    command: mvn clean package -Dmaven.test.skip
+#    command: java -jar target/microapp-ribbon-consumer-1.0.0.jar
+#    networks:
+#     - eureka-net
+networks:
+  eureka-net:
+    driver: bridge
+
+
 
 
 
