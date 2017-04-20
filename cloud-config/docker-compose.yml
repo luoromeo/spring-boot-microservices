@@ -18,7 +18,7 @@
 
 services:
   cloud-registry-server:
-    image: jamesdbloom/docker-java8-maven
+    image: luoromeo/java8_131-maven3_5
     hostname: registry
     ports:
       - "8761:8761"
@@ -30,9 +30,9 @@ services:
     command: java -jar target/cloud-registry-server-1.0.0.jar
 
   cloud-config:
-    image: jamesdbloom/docker-java8-maven
+    image: luoromeo/java8_131-maven3_5
     links:
-      - registry
+      - cloud-registry-server:registry
     ports:
       - "9380:9380"
     volumes:

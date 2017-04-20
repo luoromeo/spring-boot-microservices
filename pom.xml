@@ -15,7 +15,7 @@
         <module>microapp-feign-consumer</module>
         <module>cloud-config</module>
         <module>microapp2</module>
-        <module>zuulproxy</module>
+        <module>zuul-proxy</module>
     </modules>
 
     <properties>
