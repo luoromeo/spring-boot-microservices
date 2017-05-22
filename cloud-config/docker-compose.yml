@@ -42,3 +42,4 @@ services:
     command: mvn clean package -Dmaven.test.skip
     command: java -jar target/cloud-config-1.0.0.jar
 
+
