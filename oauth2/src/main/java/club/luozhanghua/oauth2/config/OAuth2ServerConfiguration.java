@@ -6,13 +6,15 @@ import club.luozhanghua.oauth2.service.OauthService;
 import club.luozhanghua.oauth2.service.UserService;
 import club.luozhanghua.oauth2.web.oauth.OauthUserApprovalHandler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -30,7 +32,10 @@ import org.springframework.security.oauth2.provider.approval.UserApprovalHandler
 import org.springframework.security.oauth2.provider.code.AuthorizationCodeServices;
 import org.springframework.security.oauth2.provider.code.JdbcAuthorizationCodeServices;
 import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
+import org.springframework.security.oauth2.provider.token.TokenEnhancer;
+import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 
 
 /**
@@ -128,6 +133,12 @@ public class OAuth2ServerConfiguration {
         @Qualifier("authenticationManagerBean")
         private AuthenticationManager authenticationManager;
 
+        @Autowired
+        private JwtAccessTokenConverter jwtAccessTokenConverter;
+
+        @Autowired
+        private TokenEnhancer jwtTokenEnhancer;
+
 
         @Override
         public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
@@ -136,10 +147,10 @@ public class OAuth2ServerConfiguration {
         }
 
 
-        @Bean
-        public TokenStore tokenStore(RedisConnectionFactory connectionFactory) {
-            return new MyRedisTokenStore(connectionFactory);
-        }
+//        @Bean
+//        public TokenStore tokenStore(RedisConnectionFactory connectionFactory) {
+//            return new MyRedisTokenStore(connectionFactory);
+//        }
 
 
         @Bean
@@ -159,7 +170,21 @@ public class OAuth2ServerConfiguration {
                     .authorizationCodeServices(authorizationCodeServices)
                     .userDetailsService(userDetailsService)
                     .userApprovalHandler(userApprovalHandler())
+//                    .accessTokenConverter(jwtAccessTokenConverter)
+//                    .tokenEnhancer(jwtTokenEnhancer)
                     .authenticationManager(authenticationManager);
+
+            //扩展token返回结果
+            if (jwtAccessTokenConverter != null && jwtTokenEnhancer != null) {
+                TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
+                List<TokenEnhancer> enhancerList = new ArrayList<>();
+                enhancerList.add(jwtTokenEnhancer);
+                enhancerList.add(jwtAccessTokenConverter);
+                tokenEnhancerChain.setTokenEnhancers(enhancerList);
+                //jwt
+                endpoints.tokenEnhancer(tokenEnhancerChain)
+                        .accessTokenConverter(jwtAccessTokenConverter);
+            }
         }
 
         @Override
