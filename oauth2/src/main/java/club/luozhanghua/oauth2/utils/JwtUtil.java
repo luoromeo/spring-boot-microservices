@@ -86,7 +86,7 @@ public class JwtUtil {
         //[B@152f6e2
         System.out.println(encodedKey);
         //7786df7fc3a34e26a61c034d5ec8245d
-        System.out.println(Base64.encodeBase64URLSafeString(encodedKey));
+//        System.out.println(Base64.encodeBase64URLSafeString(encodedKey));
         // 根据给定的字节数组使用AES加密算法构造一个密钥，使用 encodedKey中的始于且包含 0 到前 length 个字节这是当然是所有。（
         return new SecretKeySpec(encodedKey, 0, encodedKey.length, "AES");
     }

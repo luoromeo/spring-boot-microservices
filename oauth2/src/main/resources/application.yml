@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8081
 spring:
   application:
     name: oauth-server
@@ -40,6 +40,8 @@ spring:
       enabled: true
       charset: UTF-8
       force: true
+  session:
+    store-type: redis
 logging:
   level:
     root: info
