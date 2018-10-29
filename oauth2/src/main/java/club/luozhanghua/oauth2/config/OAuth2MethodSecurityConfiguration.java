@@ -7,9 +7,10 @@ import org.springframework.security.config.annotation.method.configuration.Globa
 import org.springframework.security.oauth2.provider.expression.OAuth2MethodSecurityExpressionHandler;
 
 /**
- * 2018/3/22
- *
- * @author Shengzhao Li
+ * @description
+ * @author zhanghua.luo
+ * @date 2018年10月29日 11:44:36
+ * @modified By
  */
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true, proxyTargetClass = true)

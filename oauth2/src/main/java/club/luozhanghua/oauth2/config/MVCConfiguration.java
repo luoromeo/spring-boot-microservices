@@ -18,21 +18,19 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * 2018/1/30
- * <p>
- * Spring MVC 扩展配置
- * <p>
- *
- * @author Shengzhao Li
+ * @description mvc配置
+ * @author zhanghua.luo
+ * @date 2018年10月29日 11:41:54
+ * @modified By
  */
 @Configuration
 public class MVCConfiguration implements WebMvcConfigurer {
 
 
-    /* *//**
+    /**
      * 扩展拦截器
-     *//*
-    @Override
+     */
+   /* @Override
     public void addInterceptors(InterceptorRegistry registry) {
 
         addInterceptors(registry);
@@ -45,7 +43,6 @@ public class MVCConfiguration implements WebMvcConfigurer {
      */
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-//        WebMvcConfigurer.super.configureMessageConverters(converters);
         converters.add(new StringHttpMessageConverter(Charset.forName(WebUtils.UTF_8)));
     }
 

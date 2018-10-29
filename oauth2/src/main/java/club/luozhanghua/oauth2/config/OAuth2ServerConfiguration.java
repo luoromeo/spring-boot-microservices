@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -33,7 +34,6 @@ import org.springframework.security.oauth2.provider.error.WebResponseExceptionTr
 import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 
 
 /**
@@ -49,7 +49,7 @@ public class OAuth2ServerConfiguration {
 
 
     /*Fixed,  resource-id */
-    public static final String RESOURCE_ID = "sos-resource";
+    private static final String RESOURCE_ID = "sos-resource";
 
 
     // unity resource
@@ -108,72 +108,68 @@ public class OAuth2ServerConfiguration {
     @EnableAuthorizationServer
     protected static class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
 
+        /**
+         * TokenStore
+         */
         @Autowired
         private TokenStore tokenStore;
 
+        /**
+         * 客户详情服务(本项目使用CustomJdbcClientDetailsService)
+         */
         @Autowired
         private ClientDetailsService clientDetailsService;
 
+        /**
+         *  Oauth服务
+         */
         @Autowired
         private OauthService oauthService;
 
+        /**
+         * AuthorizationCode服务
+         */
         @Autowired
         private AuthorizationCodeServices authorizationCodeServices;
 
+        /**
+         * 集成认证用户服务
+         */
         @Autowired
         private IntegrationUserDetailsService integrationUserDetailsService;
 
+        /**
+         * 集成认证拦截器
+         */
         @Autowired
         private IntegrationAuthenticationFilter integrationAuthenticationFilter;
 
+        /**
+         * 异常处理
+         */
+        @Autowired
+        private WebResponseExceptionTranslator webResponseExceptionTranslator;
 
+        /**
+         * 鉴权管理服务
+         */
         @Autowired
         @Qualifier("authenticationManagerBean")
         private AuthenticationManager authenticationManager;
 
-
         @Override
         public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-
             clients.withClientDetails(clientDetailsService);
         }
 
-
-        @Bean
-        public TokenStore tokenStore(DataSource dataSource) {
-            return new JdbcTokenStore(dataSource);
-        }
-
-
-        @Bean
-        public ClientDetailsService clientDetailsService(DataSource dataSource) {
-            return new CustomJdbcClientDetailsService(dataSource);
-        }
-
-        @Autowired
-        private WebResponseExceptionTranslator webResponseExceptionTranslator;
-
-        @Bean
-        public AuthorizationCodeServices authorizationCodeServices(DataSource dataSource) {
-            return new JdbcAuthorizationCodeServices(dataSource);
-        }
-
-
+        @SuppressWarnings("unchecked")
         @Override
         public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-//            endpoints.tokenStore(tokenStore)
-//                    .authorizationCodeServices(authorizationCodeServices)
-//                    .userDetailsService(userDetailsService)
-//                    .userApprovalHandler(userApprovalHandler())
-//                    .authenticationManager(authenticationManager);
-
             endpoints
                     .tokenStore(tokenStore)
-//                .accessTokenConverter(jwtAccessTokenConverter())
                     .authorizationCodeServices(authorizationCodeServices)
                     .authenticationManager(authenticationManager)
                     .exceptionTranslator(webResponseExceptionTranslator)
-//                    .reuseRefreshTokens(false)
                     .userDetailsService(integrationUserDetailsService)
                     .userApprovalHandler(userApprovalHandler())
                     .tokenServices(customerService());
@@ -181,12 +177,32 @@ public class OAuth2ServerConfiguration {
 
         @Override
         public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
-//            oauthServer.realm("spring-oauth-server")
-//                    .allowFormAuthenticationForClients();
-            oauthServer.allowFormAuthenticationForClients()
+            oauthServer.realm("spring-oauth-server")
+                    .allowFormAuthenticationForClients()
                     .tokenKeyAccess("isAuthenticated()")
                     .checkTokenAccess("permitAll()")
                     .addTokenEndpointAuthenticationFilter(integrationAuthenticationFilter);
+        }
+
+        @Bean
+        public TokenStore tokenStore(RedisConnectionFactory connectionFactory) {
+            return new MyRedisTokenStore(connectionFactory);
+        }
+
+//        @Bean
+//        public TokenStore tokenStore(DataSource dataSource) {
+//            return new JdbcTokenStore(dataSource);
+//        }
+
+        @Bean
+        public ClientDetailsService clientDetailsService(DataSource dataSource) {
+            return new CustomJdbcClientDetailsService(dataSource);
+        }
+
+
+        @Bean
+        public AuthorizationCodeServices authorizationCodeServices(DataSource dataSource) {
+            return new JdbcAuthorizationCodeServices(dataSource);
         }
 
         @Bean

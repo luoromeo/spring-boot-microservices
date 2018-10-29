@@ -19,11 +19,10 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 
 
 /**
- * 2016/4/3
- * <p/>
- * Replace security.xml
- *
- * @author Shengzhao Li
+ * @description WebSecurityConfigurer
+ * @author zhanghua.luo
+ * @date 2018年10月29日 11:44:00
+ * @modified By
  */
 @Configuration
 @EnableWebSecurity

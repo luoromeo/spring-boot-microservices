@@ -10,7 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 /**
- * @description
+ * @description 登录成功 自定义handler
  * @author zhanghua.luo
  * @date 2018年10月26日 14:28
  * @modified By

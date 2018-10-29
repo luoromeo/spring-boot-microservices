@@ -30,11 +30,11 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * 集成认证用户服务
- *
- * @author LIQIU
- * @date 2018-3-7
- **/
+ * @description 集成认证用户服务
+ * @author zhanghua.luo
+ * @date 2018年10月29日 09:59:31
+ * @modified By
+ */
 @Service("integrationUserDetailsService")
 public class IntegrationUserDetailsService implements UserDetailsService {
     private static final Logger LOG = LoggerFactory.getLogger(IntegrationUserDetailsService.class);

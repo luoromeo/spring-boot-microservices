@@ -6,7 +6,7 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 
 /**
- * @description
+ * @description 自定义TokenService
  * @author zhanghua.luo
  * @date 2018年10月28日 21:30
  * @modified By
