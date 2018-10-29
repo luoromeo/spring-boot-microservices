@@ -2,12 +2,10 @@ package club.luozhanghua.oauth2.config;
 
 
 import club.luozhanghua.oauth2.domain.oauth.CustomJdbcClientDetailsService;
+import club.luozhanghua.oauth2.integration.IntegrationAuthenticationFilter;
+import club.luozhanghua.oauth2.service.IntegrationUserDetailsService;
 import club.luozhanghua.oauth2.service.OauthService;
-import club.luozhanghua.oauth2.service.UserService;
 import club.luozhanghua.oauth2.web.oauth.OauthUserApprovalHandler;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.sql.DataSource;
 
@@ -31,18 +29,20 @@ import org.springframework.security.oauth2.provider.OAuth2RequestFactory;
 import org.springframework.security.oauth2.provider.approval.UserApprovalHandler;
 import org.springframework.security.oauth2.provider.code.AuthorizationCodeServices;
 import org.springframework.security.oauth2.provider.code.JdbcAuthorizationCodeServices;
+import org.springframework.security.oauth2.provider.error.WebResponseExceptionTranslator;
 import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
-import org.springframework.security.oauth2.provider.token.TokenEnhancer;
-import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
+import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
+import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 
 
 /**
- * @description
- * @author zhanghua.luo
- * @date 2018年10月17日 04:45:29
- * @modified By
+ * 2018/2/8
+ * <p>
+ * <p>
+ * OAuth2 config
+ *
+ * @author Shengzhao Li
  */
 @Configuration
 public class OAuth2ServerConfiguration {
@@ -108,36 +108,28 @@ public class OAuth2ServerConfiguration {
     @EnableAuthorizationServer
     protected static class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
 
-
         @Autowired
         private TokenStore tokenStore;
-
 
         @Autowired
         private ClientDetailsService clientDetailsService;
 
-
         @Autowired
         private OauthService oauthService;
-
 
         @Autowired
         private AuthorizationCodeServices authorizationCodeServices;
 
+        @Autowired
+        private IntegrationUserDetailsService integrationUserDetailsService;
 
         @Autowired
-        private UserService userDetailsService;
+        private IntegrationAuthenticationFilter integrationAuthenticationFilter;
 
 
         @Autowired
         @Qualifier("authenticationManagerBean")
         private AuthenticationManager authenticationManager;
-
-        @Autowired
-        private JwtAccessTokenConverter jwtAccessTokenConverter;
-
-        @Autowired
-        private TokenEnhancer jwtTokenEnhancer;
 
 
         @Override
@@ -147,10 +139,10 @@ public class OAuth2ServerConfiguration {
         }
 
 
-//        @Bean
-//        public TokenStore tokenStore(RedisConnectionFactory connectionFactory) {
-//            return new MyRedisTokenStore(connectionFactory);
-//        }
+        @Bean
+        public TokenStore tokenStore(DataSource dataSource) {
+            return new JdbcTokenStore(dataSource);
+        }
 
 
         @Bean
@@ -158,40 +150,43 @@ public class OAuth2ServerConfiguration {
             return new CustomJdbcClientDetailsService(dataSource);
         }
 
+        @Autowired
+        private WebResponseExceptionTranslator webResponseExceptionTranslator;
 
         @Bean
         public AuthorizationCodeServices authorizationCodeServices(DataSource dataSource) {
             return new JdbcAuthorizationCodeServices(dataSource);
         }
 
+
         @Override
         public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-            endpoints.tokenStore(tokenStore)
-                    .authorizationCodeServices(authorizationCodeServices)
-                    .userDetailsService(userDetailsService)
-                    .userApprovalHandler(userApprovalHandler())
-//                    .accessTokenConverter(jwtAccessTokenConverter)
-//                    .tokenEnhancer(jwtTokenEnhancer)
-                    .authenticationManager(authenticationManager);
+//            endpoints.tokenStore(tokenStore)
+//                    .authorizationCodeServices(authorizationCodeServices)
+//                    .userDetailsService(userDetailsService)
+//                    .userApprovalHandler(userApprovalHandler())
+//                    .authenticationManager(authenticationManager);
 
-            //扩展token返回结果
-            if (jwtAccessTokenConverter != null && jwtTokenEnhancer != null) {
-                TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
-                List<TokenEnhancer> enhancerList = new ArrayList<>();
-                enhancerList.add(jwtTokenEnhancer);
-                enhancerList.add(jwtAccessTokenConverter);
-                tokenEnhancerChain.setTokenEnhancers(enhancerList);
-                //jwt
-                endpoints.tokenEnhancer(tokenEnhancerChain)
-                        .accessTokenConverter(jwtAccessTokenConverter);
-            }
+            endpoints
+                    .tokenStore(tokenStore)
+//                .accessTokenConverter(jwtAccessTokenConverter())
+                    .authorizationCodeServices(authorizationCodeServices)
+                    .authenticationManager(authenticationManager)
+                    .exceptionTranslator(webResponseExceptionTranslator)
+//                    .reuseRefreshTokens(false)
+                    .userDetailsService(integrationUserDetailsService)
+                    .userApprovalHandler(userApprovalHandler())
+                    .tokenServices(customerService());
         }
 
         @Override
         public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
 //            oauthServer.realm("spring-oauth-server")
 //                    .allowFormAuthenticationForClients();
-            oauthServer.allowFormAuthenticationForClients();
+            oauthServer.allowFormAuthenticationForClients()
+                    .tokenKeyAccess("isAuthenticated()")
+                    .checkTokenAccess("permitAll()")
+                    .addTokenEndpointAuthenticationFilter(integrationAuthenticationFilter);
         }
 
         @Bean
@@ -208,6 +203,15 @@ public class OAuth2ServerConfiguration {
             userApprovalHandler.setClientDetailsService(this.clientDetailsService);
             userApprovalHandler.setRequestFactory(oAuth2RequestFactory());
             return userApprovalHandler;
+        }
+
+        @Bean
+        public DefaultTokenServices customerService() {
+            CustomerTokenService customerTokenService = new CustomerTokenService();
+            customerTokenService.setTokenStore(tokenStore);
+            customerTokenService.setClientDetailsService(this.clientDetailsService);
+            customerTokenService.setAuthenticationManager(authenticationManager);
+            return customerTokenService;
         }
 
     }

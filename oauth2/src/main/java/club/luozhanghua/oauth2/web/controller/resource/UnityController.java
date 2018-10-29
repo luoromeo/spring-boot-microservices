@@ -1,6 +1,6 @@
 package club.luozhanghua.oauth2.web.controller.resource;
 
-import club.luozhanghua.oauth2.service.UserService;
+import club.luozhanghua.oauth2.service.IntegrationUserDetailsService;
 import club.luozhanghua.oauth2.service.dto.UserJsonDto;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +20,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class UnityController {
 
 
+//    @Autowired
+//    private UserService userService;
+
     @Autowired
-    private UserService userService;
+    private IntegrationUserDetailsService integrationUserDetailsService;
 
 
     @RequestMapping("dashboard")
@@ -32,7 +35,7 @@ public class UnityController {
     @RequestMapping("user_info")
     @ResponseBody
     public UserJsonDto userInfo() {
-        return userService.loadCurrentUserJsonDto();
+        return integrationUserDetailsService.loadCurrentUserJsonDto();
     }
 
 }

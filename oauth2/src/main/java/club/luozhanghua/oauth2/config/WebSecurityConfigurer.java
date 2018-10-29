@@ -1,6 +1,6 @@
 package club.luozhanghua.oauth2.config;
 
-import club.luozhanghua.oauth2.service.UserService;
+import club.luozhanghua.oauth2.service.IntegrationUserDetailsService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -15,22 +15,27 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 
 /**
- * @description
- * @author zhanghua.luo
- * @date 2018年10月17日 04:44:18
- * @modified By
+ * 2016/4/3
+ * <p/>
+ * Replace security.xml
+ *
+ * @author Shengzhao Li
  */
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
 
-    @Autowired
-    private UserService userService;
+//    @Autowired
+//    private UserService userService;
 
+
+    @Autowired
+    private IntegrationUserDetailsService integrationUserDetailsService;
 
     @Override
     @Bean
@@ -64,6 +69,7 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .loginPage("/login")
                 .loginProcessingUrl("/signin")
                 .failureUrl("/login?error=1")
+//                .successHandler(customAuthenticationSuccessHandler())
                 .usernameParameter("oidc_user")
                 .passwordParameter("oidcPwd")
                 .and()
@@ -77,11 +83,16 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
         http.authenticationProvider(authenticationProvider());
     }
 
+    @Bean
+    public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
+        return new CustomAuthenticationSuccessHandler();
+    }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setUserDetailsService(userService);
+//        daoAuthenticationProvider.setUserDetailsService(userService);
+        daoAuthenticationProvider.setUserDetailsService(integrationUserDetailsService);
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
         return daoAuthenticationProvider;
     }

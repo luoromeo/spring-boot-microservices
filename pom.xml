@@ -28,6 +28,13 @@
         <platform-bom.version>Cairo-RELEASE</platform-bom.version>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+    </dependencies>
+
 
     <dependencyManagement>
         <dependencies>

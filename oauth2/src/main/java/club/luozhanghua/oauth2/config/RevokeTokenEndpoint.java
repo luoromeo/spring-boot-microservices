@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @FrameworkEndpoint
 public class RevokeTokenEndpoint {
-
     @Autowired
     @Qualifier("consumerTokenServices")
     ConsumerTokenServices consumerTokenServices;
@@ -30,5 +29,12 @@ public class RevokeTokenEndpoint {
             return "注销失败";
         }
     }
+    /*public void revokeToken(HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        if (authorization != null && authorization.contains("Bearer")) {
+            String tokenId = authorization.substring("Bearer".length() + 1);
+            consumerTokenServices.revokeToken(tokenId);
+        }
+    }*/
 }
 

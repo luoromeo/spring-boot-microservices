@@ -1,6 +1,6 @@
 package club.luozhanghua.oauth2.web.controller;
 
-import club.luozhanghua.oauth2.service.UserService;
+import club.luozhanghua.oauth2.service.IntegrationUserDetailsService;
 import club.luozhanghua.oauth2.service.dto.UserFormDto;
 import club.luozhanghua.oauth2.service.dto.UserOverviewDto;
 
@@ -24,8 +24,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class UserController {
 
 
+//    @Autowired
+//    private UserService userService;
+
     @Autowired
-    private UserService userService;
+    private IntegrationUserDetailsService integrationUserDetailsService;
 
     @Autowired
     private UserFormDtoValidator validator;
@@ -35,7 +38,8 @@ public class UserController {
      */
     @RequestMapping("overview")
     public String overview(UserOverviewDto overviewDto, Model model) {
-        overviewDto = userService.loadUserOverviewDto(overviewDto);
+//        overviewDto = userService.loadUserOverviewDto(overviewDto);
+        overviewDto = integrationUserDetailsService.loadUserOverviewDto(overviewDto);
         model.addAttribute("overviewDto", overviewDto);
         return "user_overview";
     }
@@ -54,7 +58,8 @@ public class UserController {
         if (result.hasErrors()) {
             return "user_form";
         }
-        userService.saveUser(formDto);
+//        userService.saveUser(formDto);
+        integrationUserDetailsService.saveUser(formDto);
         return "redirect:../overview";
     }
 

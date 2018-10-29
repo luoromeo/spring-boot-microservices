@@ -18,13 +18,26 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * @description 实现WebMvcConfigurer接口 定义一些Handler，Interceptor，ViewResolver，MessageConverter
- * @author zhanghua.luo
- * @date 2018年10月17日 04:42:23
- * @modified By
+ * 2018/1/30
+ * <p>
+ * Spring MVC 扩展配置
+ * <p>
+ *
+ * @author Shengzhao Li
  */
 @Configuration
 public class MVCConfiguration implements WebMvcConfigurer {
+
+
+    /* *//**
+     * 扩展拦截器
+     *//*
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+
+        addInterceptors(registry);
+    }*/
+
 
     /**
      * 解决乱码问题

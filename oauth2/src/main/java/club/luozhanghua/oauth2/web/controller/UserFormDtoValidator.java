@@ -1,7 +1,7 @@
 package club.luozhanghua.oauth2.web.controller;
 
 import club.luozhanghua.oauth2.domain.user.Privilege;
-import club.luozhanghua.oauth2.service.UserService;
+import club.luozhanghua.oauth2.service.IntegrationUserDetailsService;
 import club.luozhanghua.oauth2.service.dto.UserFormDto;
 
 import java.util.List;
@@ -23,8 +23,11 @@ import org.springframework.validation.Validator;
 public class UserFormDtoValidator implements Validator {
 
 
+//    @Autowired
+//    private UserService userService;
+
     @Autowired
-    private UserService userService;
+    private IntegrationUserDetailsService integrationUserDetailsService;
 
     @Override
     public boolean supports(Class<?> clazz) {
@@ -61,7 +64,7 @@ public class UserFormDtoValidator implements Validator {
             return;
         }
 
-        boolean existed = userService.isExistedUsername(username);
+        boolean existed = integrationUserDetailsService.isExistedUsername(username);
         if (existed) {
             errors.rejectValue("username", null, "Username already existed");
         }
