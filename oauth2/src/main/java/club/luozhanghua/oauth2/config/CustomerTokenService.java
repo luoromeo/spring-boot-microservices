@@ -1,6 +1,9 @@
 package club.luozhanghua.oauth2.config;
 
+import club.luozhanghua.oauth2.utils.JwtUtil;
+
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
@@ -15,10 +18,10 @@ public class CustomerTokenService extends DefaultTokenServices {
     @Override
     public OAuth2AccessToken createAccessToken(OAuth2Authentication authentication) throws AuthenticationException {
         OAuth2AccessToken token = super.createAccessToken(authentication);
-        System.out.println(token.getValue());
-        System.out.println("ready to save token");
-        //获取用户信息
-        authentication.getPrincipal();
+        String jwtToken = JwtUtil.createJwtToken((UserDetails) authentication.getPrincipal());
+
         return token;
     }
+
+
 }
