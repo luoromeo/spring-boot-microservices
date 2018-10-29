@@ -31,6 +31,7 @@
 
 # IntelliJ
 /out/
+target/*
 
 # mpeltonen/sbt-idea plugin
 .idea_modules/
@@ -78,3 +79,4 @@ Temporary Items
 *.iml
 out
 gen
+spring-oauth-server.zip
