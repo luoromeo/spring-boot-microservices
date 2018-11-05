@@ -4,6 +4,7 @@ import club.luozhanghua.zuul.common.Constants;
 import club.luozhanghua.zuul.common.FilterInfo;
 import club.luozhanghua.zuul.common.IZuulFilterDao;
 import club.luozhanghua.zuul.filters.manager.FilterVerifier;
+import club.luozhanghua.zuul.filters.manager.ZuulFilterDaoFactory;
 import club.luozhanghua.zuul.util.JSONUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -30,6 +31,8 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -58,9 +61,15 @@ public class FilterScriptManagerController {
     private static final Set<String> VALID_PUT_ACTIONS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList("UPLOAD", "ACTIVATE", "DEACTIVATE", "RUN", "CANARY")));
 
     /* DAO for performing CRUD operations with scripts */
+    @Autowired
     private IZuulFilterDao scriptDAO;
 
     /* Controller for executing scripts in development/test */
+
+    @Bean
+    public IZuulFilterDao scriptDAO() {
+        return ZuulFilterDaoFactory.getZuulFilterDao();
+    }
 
     @RequestMapping(method = RequestMethod.GET)
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

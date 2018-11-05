@@ -5,8 +5,6 @@ import club.luozhanghua.zuul.common.Constants;
 import club.luozhanghua.zuul.common.IZuulFilterDao;
 import club.luozhanghua.zuul.common.IZuulFilterDaoBuilder;
 
-import org.springframework.context.annotation.Configuration;
-
 import com.netflix.config.DynamicIntProperty;
 import com.netflix.config.DynamicLongProperty;
 import com.netflix.config.DynamicPropertyFactory;
@@ -14,7 +12,6 @@ import com.netflix.config.DynamicStringProperty;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-@Configuration
 public class JDBCZuulFilterDaoBuilder implements IZuulFilterDaoBuilder {
     private static final DynamicStringProperty dataSourceClass = DynamicPropertyFactory.getInstance()
             .getStringProperty(Constants.DATA_SOURCE_CLASS_NAME, null);
