@@ -36,6 +36,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.netflix.config.DynamicBooleanProperty;
 import com.netflix.config.DynamicPropertyFactory;
@@ -72,7 +74,7 @@ public class FilterScriptManagerController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doGett(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // retrieve arguments and validate
         String action = request.getParameter("action");
         /* validate the action and method */
@@ -113,7 +115,7 @@ public class FilterScriptManagerController {
      * </ul>
      */
     @RequestMapping(method = RequestMethod.PUT)
-    public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doPutt(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         if (!ADMIN_ENABLED.get()) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Filter admin is disabled. See the zuul.filters.admin.enabled FastProperty.");
@@ -145,14 +147,63 @@ public class FilterScriptManagerController {
     }
 
     @RequestMapping(method = RequestMethod.POST)
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        doPut(request, response);
+    public void doPostt(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        doPutt(request, response);
     }
 
     @RequestMapping(method = RequestMethod.DELETE)
-    public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doDeletee(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         setUsageError(405, response);
         return;
+    }
+
+    @RequestMapping(value = "/upload", method = RequestMethod.POST)
+    public void upload(@RequestParam("file") MultipartFile file, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        handleUploadFileAction(file, request, response);
+    }
+
+    private void handleUploadFileAction(MultipartFile file, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        String filter = handleFile(file, response);
+        if (filter != null) {
+            FilterInfo filterInfo = null;
+            try {
+                filterInfo = FilterVerifier.getInstance().verifyFilter(filter);
+            } catch (IllegalAccessException e) {
+                logger.error(e.getMessage(), e);
+                setUsageError(500, "ERROR: Unable to process uploaded data. " + e.getMessage(), response);
+            } catch (InstantiationException e) {
+                logger.error(e.getMessage(), e);
+                setUsageError(500, "ERROR: Bad Filter. " + e.getMessage(), response);
+            }
+            filterInfo = scriptDAO.addFilter(filter, filterInfo.getFilterType(), filterInfo.getFilterName(), filterInfo.getFilterDisablePropertyName(), filterInfo.getFilterOrder());
+            if (filterInfo == null) {
+                setUsageError(500, "ERROR: Unable to process uploaded data.", response);
+                return;
+            }
+            response.sendRedirect("filterLoader.jsp");
+
+//            Map<String, Object> scriptJson = createEndpointScriptJSON(filterInfo);
+//            response.getWriter().write(JsonUtility.jsonFromMap(scriptJson));
+        }
+    }
+
+    private String handleFile(MultipartFile file, HttpServletResponse response) throws IOException {
+
+        InputStream input = file.getInputStream();
+
+        // NOTE: we are going to pull the entire stream into memory
+        // this will NOT work if we have huge scripts, but we expect these to be measured in KBs, not MBs or larger
+        byte[] uploadedBytes = getBytesFromInputStream(input);
+        input.close();
+
+        if (uploadedBytes.length == 0) {
+            setUsageError(400, "ERROR: Body contained no data.", response);
+            return null;
+        }
+
+        return new String(uploadedBytes);
+
     }
 
     private void handleListAction(HttpServletRequest request, HttpServletResponse response) throws Exception {

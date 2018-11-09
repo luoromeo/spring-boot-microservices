@@ -1,8 +1,5 @@
 package club.luozhanghua.zuul.filters;
 
-import club.luozhanghua.zuul.filters.pre.OauthFilter;
-
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -13,8 +10,8 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class FilterRegister {
-    @Bean
+   /* @Bean
     public OauthFilter logFilter() {
         return new OauthFilter();
-    }
+    }*/
 }
